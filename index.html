@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SYNORA</title>
+<meta name="description" content="SYNORA, original drawings by the artist. Browse the gallery, buy a finished piece or order a custom drawing.">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@500;600&family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout concept: black gallery wall. Sticky wordmark header, five-tab bottom bar, sharp-edged panels, artwork as the only imagery. */
+:root{
+  --bg:#000000;
+  --panel:#0a0a0a;
+  --line:#2a2a2a;
+  --fg:#ffffff;
+  --mute:#a6a6a6;
+  --dim:#7a7a7a;
+  --display:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --mark:'Bodoni Moda','Didot',Georgia,serif;
+  --body:'Jost','Helvetica Neue',Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;font-weight:300;line-height:1.55;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+h1,h2,h3{font-family:var(--display);font-weight:500;margin:0;text-wrap:balance;line-height:1.08}
+h1{font-size:clamp(2.4rem,7vw,4rem);letter-spacing:.01em}
+h2{font-size:clamp(1.7rem,4.5vw,2.3rem)}
+h3{font-size:1.35rem}
+p{margin:0}
+.eyebrow{font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;color:var(--mute);font-weight:400}
+.note{color:var(--mute);font-size:.9rem}
+.num{font-variant-numeric:tabular-nums}
+
+.top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top,0px))}
+.brand{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--fg);min-height:44px}
+.mark{width:38px;height:38px;border:1px solid var(--fg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mark);font-weight:500;font-size:22px;line-height:1;padding-bottom:2px;flex:none}
+.word{font-family:var(--display);font-weight:500;font-size:1.45rem;letter-spacing:.42em}
+.link{background:none;border:0;color:var(--mute);letter-spacing:.2em;text-transform:uppercase;font-size:.72rem;min-height:44px;padding:0 4px}
+.link:hover{color:var(--fg)}
+
+.wrap{max-width:1100px;margin:0 auto;padding-inline:16px;padding-block:32px 112px}
+.view{display:flex;flex-direction:column;gap:40px}
+.head{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 24px;background:var(--fg);color:var(--bg);border:1px solid var(--fg);border-radius:0;font-size:.74rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;text-decoration:none}
+.btn:hover{background:#dcdcdc}
+.btn.ghost{background:transparent;color:var(--fg);border-color:#5a5a5a}
+.btn.ghost:hover{border-color:var(--fg);background:transparent}
+.btn.small{min-height:40px;padding:8px 16px;font-size:.68rem}
+.btn[disabled]{opacity:.5;cursor:default}
+.field{display:flex;flex-direction:column;gap:8px;min-width:0}
+.field label,.label{font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--mute);font-weight:400}
+input[type=text],input[type=tel],input[type=number],input[type=date],select,textarea{width:100%;min-height:48px;padding:12px 14px;background:var(--bg);border:1px solid #3a3a3a;border-radius:0;font-size:16px;font-weight:300}
+input::placeholder,textarea::placeholder{color:var(--dim)}
+textarea{min-height:110px;resize:vertical}
+input[type=file]{font-size:.9rem;color:var(--mute);max-width:100%}
+input[type=file]::file-selector-button{background:transparent;color:var(--fg);border:1px solid #5a5a5a;padding:10px 16px;margin-right:12px;border-radius:0;font:inherit;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;cursor:pointer}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.form .full{grid-column:1/-1}
+.err{color:#ffffff;border-left:2px solid #ffffff;padding:6px 12px;font-size:.9rem}
+.check{display:flex;align-items:center;gap:12px;min-height:44px;font-size:.95rem}
+.check input{width:22px;height:22px;accent-color:#ffffff;flex:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:40px;padding:8px 18px;background:transparent;border:1px solid #3a3a3a;border-radius:0;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+.chip[aria-pressed=true]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 14px}
+@media(min-width:720px){.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:36px 20px}.form{gap:22px}}
+@media(min-width:1000px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.card{display:flex;flex-direction:column;gap:6px;text-align:left;background:none;border:0;padding:0;min-width:0;color:var(--fg)}
+.frame{display:block;aspect-ratio:4/5;background:var(--panel);border:1px solid var(--line);overflow:hidden}
+.frame img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+.card:hover .frame img{transform:scale(1.03)}
+.ct{font-family:var(--display);font-size:1.3rem;font-weight:500;line-height:1.15;margin-top:6px}
+.cm{font-size:.82rem;color:var(--mute)}
+.cp{font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;font-variant-numeric:tabular-nums}
+.shelf{display:flex;gap:16px;overflow-x:auto;padding-bottom:12px;scroll-snap-type:x proximity}
+.shelf .card{flex:0 0 min(60vw,230px);scroll-snap-align:start}
+
+.hero{display:grid;grid-template-columns:minmax(0,1fr);gap:32px;align-items:center}
+@media(min-width:860px){.hero{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:56px}}
+.hero .lead{max-width:34ch;color:var(--mute);font-size:1.05rem}
+.hero-copy{display:flex;flex-direction:column;gap:24px}
+.empty{border:1px solid var(--line);padding:32px 20px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+
+.who{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.avatar{width:84px;height:84px;border:1px solid var(--fg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mark);font-size:50px;line-height:1;padding-bottom:4px;flex:none}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line)}
+.stat{padding:16px;display:flex;flex-direction:column;gap:2px;border-right:1px solid var(--line)}
+.stat:last-child{border-right:0}
+.stat b{font-family:var(--display);font-weight:500;font-size:2rem;line-height:1}
+.stat span{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
+.panel{border:1px solid var(--line);background:var(--panel);padding:20px;display:flex;flex-direction:column;gap:20px}
+.list{display:flex;flex-direction:column}
+.item{display:grid;grid-template-columns:64px minmax(0,1fr);gap:16px;padding:16px 0;border-top:1px solid var(--line);align-items:start}
+.item:first-child{border-top:0}
+.thumb{width:64px;height:80px;background:var(--panel);border:1px solid var(--line);overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.item-main{display:flex;flex-direction:column;gap:10px;min-width:0}
+.item-title{font-family:var(--display);font-size:1.25rem;font-weight:500;line-height:1.15;overflow-wrap:anywhere}
+.item-ctrl{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.price-in{display:flex;align-items:center;border:1px solid #3a3a3a;min-height:44px;max-width:170px}
+.price-in span{padding-left:12px;color:var(--mute)}
+.price-in input{border:0;min-height:42px;padding-left:6px;min-width:0}
+.rec{display:flex;flex-direction:column;gap:6px;padding:16px 0;border-top:1px solid var(--line);min-width:0}
+.rec:first-child{border-top:0}
+.rec p{overflow-wrap:anywhere}
+.badge{display:inline-block;font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;padding:3px 10px;border:1px solid var(--fg)}
+.badge.done{border-color:#4a4a4a;color:var(--mute)}
+
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--bg);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs-in{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:100%;max-width:640px}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:62px;background:none;border:0;color:#8c8c8c;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;padding:6px 2px}
+.tab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-current=page]{color:var(--fg)}
+
+.overlay{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.backdrop{position:absolute;inset:0;background:rgba(0,0,0,.78)}
+.sheet{position:relative;width:100%;max-width:640px;max-height:92%;overflow-y:auto;background:var(--panel);border:1px solid #333;padding:24px 20px calc(24px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:20px}
+@media(min-width:720px){.overlay{align-items:center}.sheet{padding:32px}}
+.close{position:absolute;top:8px;right:8px;width:44px;height:44px;background:none;border:0;color:var(--fg);display:flex;align-items:center;justify-content:center}
+.close svg{width:20px;height:20px;stroke:currentColor;stroke-width:1.4;fill:none}
+.sheet-img{aspect-ratio:4/5;max-height:52vh;width:100%;background:var(--bg);border:1px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.sheet-img img{max-height:100%;width:auto;max-width:100%;object-fit:contain}
+.price-big{font-family:var(--display);font-size:2rem;font-weight:500;font-variant-numeric:tabular-nums}
+.radio{display:flex;gap:14px;align-items:flex-start;border:1px solid #3a3a3a;padding:14px;cursor:pointer}
+.radio input{width:20px;height:20px;accent-color:#ffffff;margin-top:2px;flex:none}
+.radio:has(input:checked){border-color:var(--fg)}
+.radio b{font-weight:500;display:block}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--fg);color:var(--bg);padding:12px 20px;font-size:.85rem;letter-spacing:.06em;max-width:calc(100% - 32px)}
+@media(max-width:520px){.form{grid-template-columns:minmax(0,1fr)}.word{font-size:1.2rem;letter-spacing:.36em}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="brand" href="#home" data-tab="home" aria-label="SYNORA home">
+    <span class="mark" aria-hidden="true">S</span>
+    <span class="word">SYNORA</span>
+  </a>
+  <button class="link" type="button" id="auth-btn" data-act="signin">Sign in</button>
+</header>
+
+<main class="wrap">
+  <div id="dbmsg" class="err" hidden></div>
+  <section class="view" id="v-home" data-view="home" aria-label="Home"></section>
+  <section class="view" id="v-gallery" data-view="gallery" aria-label="Gallery" hidden></section>
+  <section class="view" id="v-market" data-view="market" aria-label="Marketplace" hidden></section>
+  <section class="view" id="v-custom" data-view="custom" aria-label="Custom orders" hidden></section>
+  <section class="view" id="v-profile" data-view="profile" aria-label="Profile" hidden></section>
+</main>
+
+<nav class="tabs" aria-label="Sections">
+  <div class="tabs-in">
+    <button class="tab" type="button" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 10v9.5h13V10"/></svg>Home</button>
+    <button class="tab" type="button" data-tab="gallery"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15"/><path d="m3.5 16 5-5 4 4 3-3 5 5"/></svg>Gallery</button>
+    <button class="tab" type="button" data-tab="market"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>Market</button>
+    <button class="tab" type="button" data-tab="custom"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 20 1-4L16.5 4.5l3 3L8 19l-4 1Z"/><path d="m14 7 3 3"/></svg>Custom</button>
+    <button class="tab" type="button" data-tab="profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="3.6"/><path d="M5 20c.8-3.6 3.7-5.4 7-5.4s6.2 1.8 7 5.4"/></svg>Profile</button>
+  </div>
+</nav>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="backdrop" data-act="close"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Details">
+    <button class="close" type="button" data-act="close" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"/></svg></button>
+    <div id="sheet-body"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
+import { getFirestore, collection, doc, onSnapshot, addDoc, setDoc, updateDoc, deleteDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+
+/* The artist account. The database rules decide who can really change things; this only decides what the page shows. */
+const ADMIN_EMAIL = 'siyanmampad.in@gmail.com';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDl9dureuxrK86nu8Y4uBt8TdmkCxUgVTM",
+  authDomain: "synora-1d71c.firebaseapp.com",
+  projectId: "synora-1d71c",
+  storageBucket: "synora-1d71c.firebasestorage.app",
+  messagingSenderId: "592952923073",
+  appId: "1:592952923073:web:92635a3045c10be316d540"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const TABS = ['home','gallery','market','custom','profile'];
+function $(s,r){return (r||document).querySelector(s);}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function money(n){return '₹'+Number(n).toLocaleString('en-IN');}
+function ms(v){return v&&v.toMillis?v.toMillis():(v?new Date(v).getTime():0);}
+function dstr(v){try{var d=v&&v.toDate?v.toDate():new Date(v);if(isNaN(d.getTime()))return '';return d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});}catch(e){return '';}}
+function sortNew(a){a.sort(function(x,y){return ms(y.createdAt)-ms(x.createdAt);});}
+function mapDocs(s){return s.docs.map(function(d){var o=d.data({serverTimestamps:'estimate'});o.id=d.id;return o;});}
+function friendly(e){
+  var c=(e&&e.code)||'';
+  if(c.indexOf('permission-denied')>=0)return 'You do not have permission to do that.';
+  if(c.indexOf('unavailable')>=0)return 'No connection. Check your internet and try again.';
+  return 'Something went wrong'+(c?' ('+c+')':'')+'.';
+}
+
+/* ---------- state ---------- */
+var artworks=[],orders=[],requests=[],profile={name:'',bio:''};
+var user=null,isAdmin=false,pendingBuy=null,prevUser=null;
+var unsubOrders=null,unsubReqs=null;
+var ui={tab:'home',filter:'all',sort:'new',adding:false,tmpImg:null,form:{title:'',medium:'',size:'',price:'',sale:true}};
+
+function byId(id){for(var i=0;i<artworks.length;i++){if(artworks[i].id===id)return artworks[i];}return null;}
+function forSale(a){return a.forSale&&a.price!=null&&a.price>=0;}
+function imgSrc(a){return esc(a.img||'');}
+
+/* ---------- shared pieces ---------- */
+function card(a){
+  var tag=forSale(a)?money(a.price):'Gallery only';
+  return '<button class="card" type="button" data-open="'+esc(a.id)+'"><span class="frame"><img src="'+imgSrc(a)+'" alt="'+esc(a.title)+', '+esc(a.medium)+'" loading="lazy"></span><span class="ct">'+esc(a.title)+'</span><span class="cm">'+esc(a.medium)+' · '+esc(a.size)+'</span><span class="cp">'+tag+'</span></button>';
+}
+function emptyBox(msg,btn){return '<div class="empty"><p class="note">'+msg+'</p>'+(btn||'')+'</div>';}
+function emptyArt(){
+  return isAdmin?emptyBox('You have not added any artwork yet.','<button class="btn small" type="button" data-tab="profile">Add your first artwork</button>')
+    :emptyBox('New work is on its way. Check back soon.');
+}
+
+/* ---------- views ---------- */
+function renderHome(){
+  var list=artworks,feat=null,i;
+  for(i=0;i<list.length;i++){if(forSale(list[i])){feat=list[i];break;}}
+  feat=feat||list[0];
+  var h='<div class="hero"><div class="hero-copy"><span class="eyebrow">Original drawings</span><h1>Art made by hand, sold by the artist.</h1><p class="lead">Browse the gallery, buy a finished piece, or ask for a drawing made only for you.</p><div class="row"><button class="btn" type="button" data-tab="market">Shop the marketplace</button><button class="btn ghost" type="button" data-tab="custom">Order a custom drawing</button></div></div>';
+  h+=feat?card(feat):emptyArt();
+  h+='</div>';
+  if(list.length){
+    h+='<div class="head"><div class="section-head"><h2>New work</h2><button class="link" type="button" data-tab="gallery">View gallery</button></div><div class="shelf">'+list.slice(0,8).map(card).join('')+'</div></div>';
+  }
+  $('#v-home').innerHTML=h;
+}
+
+function renderGallery(){
+  var list=artworks.filter(function(a){
+    if(ui.filter==='sale')return forSale(a);
+    if(ui.filter==='only')return !forSale(a);
+    return true;
+  });
+  var chips=[['all','All'],['sale','Available'],['only','Gallery only']].map(function(c){return '<button class="chip" type="button" data-filter="'+c[0]+'" aria-pressed="'+(ui.filter===c[0])+'">'+c[1]+'</button>';}).join('');
+  $('#v-gallery').innerHTML='<div class="head"><span class="eyebrow">Drawings</span><h1>Gallery</h1></div><div class="chips" role="group" aria-label="Filter drawings">'+chips+'</div>'+
+    (list.length?'<div class="grid">'+list.map(card).join('')+'</div>':(artworks.length?emptyBox('Nothing matches this filter.'):emptyArt()));
+}
+
+function renderMarket(){
+  var list=artworks.filter(forSale);
+  if(ui.sort==='low')list.sort(function(a,b){return a.price-b.price;});
+  if(ui.sort==='high')list.sort(function(a,b){return b.price-a.price;});
+  $('#v-market').innerHTML='<div class="head"><span class="eyebrow">For sale</span><h1>Marketplace</h1></div>'+
+    '<div class="field" style="max-width:260px"><label for="sort">Sort by</label><select id="sort"><option value="new"'+(ui.sort==='new'?' selected':'')+'>Newest</option><option value="low"'+(ui.sort==='low'?' selected':'')+'>Price, low to high</option><option value="high"'+(ui.sort==='high'?' selected':'')+'>Price, high to low</option></select></div>'+
+    (list.length?'<div class="grid">'+list.map(card).join('')+'</div>':emptyBox(isAdmin?'No artwork is listed for sale yet. Add a price and turn on “For sale” in your Profile.':'Nothing is listed for sale right now. You can still order a custom drawing.',isAdmin?'<button class="btn small" type="button" data-tab="profile">Go to Profile</button>':'<button class="btn small" type="button" data-tab="custom">Order a custom drawing</button>'));
+}
+
+function renderBrowse(){renderHome();renderGallery();renderMarket();}
+
+function renderCustomForm(){
+  $('#v-custom').innerHTML='<div class="head"><span class="eyebrow">Made for you</span><h1>Custom Orders</h1><p class="note" style="max-width:52ch">Describe the drawing you want. The artist reviews your request and replies with a price and a timeline. You need to sign in with Google to send a request.</p></div>'+
+  '<form class="form" id="custom-form" novalidate>'+
+    '<div class="field"><label for="c-name">Your name</label><input id="c-name" type="text" autocomplete="name" required></div>'+
+    '<div class="field"><label for="c-phone">Phone number</label><input id="c-phone" type="tel" autocomplete="tel" inputmode="tel" required></div>'+
+    '<div class="field full"><label for="c-desc">What should the drawing show?</label><textarea id="c-desc" required placeholder="Who or what is in it, the mood, any details that matter."></textarea></div>'+
+    '<div class="field"><label for="c-kind">Type</label><select id="c-kind"><option>Portrait</option><option>Couple or family</option><option>Pet</option><option>Landscape</option><option>Something else</option></select></div>'+
+    '<div class="field"><label for="c-size">Size</label><select id="c-size"><option>A5</option><option selected>A4</option><option>A3</option><option>A2</option></select></div>'+
+    '<div class="field"><label for="c-budget">Budget in ₹ (optional)</label><input id="c-budget" type="number" inputmode="numeric" min="0" step="100"></div>'+
+    '<div class="field"><label for="c-date">Needed by (optional)</label><input id="c-date" type="date"></div>'+
+    '<div class="field full"><label for="c-ref">Reference photo (optional)</label><input id="c-ref" type="file" accept="image/*"></div>'+
+    '<div class="full" id="c-err" hidden></div>'+
+    '<div class="full"><button class="btn" type="submit" id="c-send">Send request</button></div>'+
+  '</form>'+
+  '<div class="head"><h2>Your requests</h2></div><div id="c-list"></div>';
+  renderCustomList();
+}
+function reqRowBuyer(r){
+  return '<div class="rec"><div class="row"><span class="badge'+(r.done?' done':'')+'">'+(r.done?'Completed':'Sent')+'</span><span class="note">'+esc(dstr(r.createdAt))+'</span></div><p>'+esc(r.kind)+', '+esc(r.size)+(r.budget?' · budget '+money(r.budget):'')+'</p><p class="note">'+esc(r.desc)+'</p></div>';
+}
+function renderCustomList(){
+  var el=$('#c-list');if(!el)return;
+  if(!user){el.innerHTML=emptyBox('Sign in to see the requests you have sent.','<button class="btn small" type="button" data-act="signin">Sign in</button>');return;}
+  var mine=requests.filter(function(r){return r.buyerUid===user.uid;});
+  el.innerHTML=mine.length?'<div class="list">'+mine.map(reqRowBuyer).join('')+'</div>':emptyBox('No requests yet. Your first one will show up here.');
+}
+
+function profileStats(){
+  var sale=artworks.filter(forSale).length;
+  var open=orders.filter(function(o){return !o.done;}).length+requests.filter(function(r){return !r.done;}).length;
+  return '<div class="stats"><div class="stat"><b class="num">'+artworks.length+'</b><span>Artworks</span></div><div class="stat"><b class="num">'+sale+'</b><span>For sale</span></div><div class="stat"><b class="num">'+open+'</b><span>Open orders</span></div></div>';
+}
+function orderRowAdmin(o){
+  return '<div class="rec"><div class="row"><span class="badge'+(o.done?' done':'')+'">'+(o.done?'Done':'New')+'</span><span class="note">'+esc(dstr(o.createdAt))+'</span></div><p>'+esc(o.title)+' · '+money(o.price)+'</p><p class="note">'+esc(o.name)+' · '+esc(o.phone)+'</p><p class="note">'+esc(o.address)+'</p><p class="note">Payment: '+(o.pay==='online'?'online':'offline')+'</p><div><button class="btn ghost small" type="button" data-act="done-order" data-id="'+esc(o.id)+'">'+(o.done?'Mark as new':'Mark as done')+'</button></div></div>';
+}
+function reqRowAdmin(r){
+  return '<div class="rec"><div class="row"><span class="badge'+(r.done?' done':'')+'">'+(r.done?'Done':'New')+'</span><span class="note">'+esc(dstr(r.createdAt))+'</span></div><p>'+esc(r.kind)+', '+esc(r.size)+(r.budget?' · budget '+money(r.budget):'')+(r.needBy?' · by '+esc(r.needBy):'')+'</p><p class="note">'+esc(r.name)+' · '+esc(r.phone)+'</p><p class="note">'+esc(r.desc)+'</p>'+(r.ref?'<div class="thumb" style="width:96px;height:120px"><img src="'+esc(r.ref)+'" alt="Reference photo"></div>':'')+'<div><button class="btn ghost small" type="button" data-act="done-req" data-id="'+esc(r.id)+'">'+(r.done?'Mark as new':'Mark as done')+'</button></div></div>';
+}
+function orderRowBuyer(o){
+  return '<div class="rec"><div class="row"><span class="badge'+(o.done?' done':'')+'">'+(o.done?'Completed':'Pending')+'</span><span class="note">'+esc(dstr(o.createdAt))+'</span></div><p>'+esc(o.title)+' · '+money(o.price)+'</p><p class="note">Payment: '+(o.pay==='online'?'online':'offline')+'</p></div>';
+}
+
+function renderProfile(){
+  var f=ui.form;
+  var h='<div class="head"><span class="eyebrow">'+(isAdmin?'Artist':'Account')+'</span><h1>Profile</h1></div>';
+  h+='<div class="who"><div class="avatar" aria-hidden="true">S</div>';
+  if(isAdmin){h+='<div class="field" style="flex:1 1 220px"><label for="p-name">Artist name</label><input id="p-name" type="text" value="'+esc(profile.name)+'" placeholder="Your name"></div></div><div class="field"><label for="p-bio">About</label><textarea id="p-bio" placeholder="A few lines about you and your work.">'+esc(profile.bio)+'</textarea></div>';}
+  else{h+='<div style="flex:1 1 220px"><h3>'+esc(profile.name||'SYNORA')+'</h3>'+(profile.bio?'<p class="note" style="margin-top:6px">'+esc(profile.bio)+'</p>':'')+'</div></div>';}
+  if(user){h+='<div class="row"><p class="note">Signed in as '+esc(user.email||user.displayName||'your account')+'</p><button class="btn ghost small" type="button" data-act="signout">Sign out</button></div>';}
+  else{h+=emptyBox('Sign in to place orders, send custom requests and see your history.','<button class="btn small" type="button" data-act="signin">Sign in with Google</button>');}
+
+  if(isAdmin){
+    h+=profileStats();
+    h+='<div class="head"><div class="section-head"><h2>Your artworks</h2><button class="btn small'+(ui.adding?' ghost':'')+'" type="button" data-act="toggle-add">'+(ui.adding?'Cancel':'Add artwork')+'</button></div></div>';
+    if(ui.adding){
+      h+='<form class="panel" id="add-form" novalidate><div class="form">'+
+        '<div class="field full"><label for="f-img">Photo of the artwork</label><input id="f-img" type="file" accept="image/*"><div id="f-prev">'+(ui.tmpImg?'<div class="thumb" style="margin-top:8px"><img src="'+ui.tmpImg+'" alt="Selected artwork"></div>':'')+'</div></div>'+
+        '<div class="field full"><label for="f-title">Title</label><input id="f-title" type="text" value="'+esc(f.title)+'" required></div>'+
+        '<div class="field"><label for="f-medium">Medium</label><input id="f-medium" type="text" value="'+esc(f.medium)+'" placeholder="Charcoal on paper"></div>'+
+        '<div class="field"><label for="f-size">Size</label><input id="f-size" type="text" value="'+esc(f.size)+'" placeholder="A4"></div>'+
+        '<div class="field"><label for="f-price">Price in ₹</label><input id="f-price" type="number" inputmode="numeric" min="0" step="50" value="'+esc(f.price)+'"></div>'+
+        '<div class="field" style="justify-content:flex-end"><label class="check"><input id="f-sale" type="checkbox"'+(f.sale?' checked':'')+'> List for sale</label></div>'+
+        '<div class="full" id="f-err" hidden></div>'+
+        '<div class="full"><button class="btn" type="submit" id="f-send">Add to SYNORA</button></div>'+
+      '</div></form>';
+    }
+    if(artworks.length){
+      h+='<div class="list">'+artworks.map(function(a){
+        return '<div class="item"><div class="thumb"><img src="'+imgSrc(a)+'" alt=""></div><div class="item-main"><div><div class="item-title">'+esc(a.title)+'</div><div class="cm">'+esc(a.medium)+' · '+esc(a.size)+'</div></div>'+
+          '<div class="item-ctrl"><div class="price-in"><span>₹</span><input type="number" inputmode="numeric" min="0" step="50" data-price="'+esc(a.id)+'" value="'+(a.price==null?'':esc(a.price))+'" aria-label="Price of '+esc(a.title)+'"></div>'+
+          '<label class="check"><input type="checkbox" data-sale="'+esc(a.id)+'"'+(a.forSale?' checked':'')+'> For sale</label>'+
+          '<button class="btn ghost small" type="button" data-act="remove" data-id="'+esc(a.id)+'">Remove</button></div></div></div>';
+      }).join('')+'</div>';
+    }else{h+=emptyBox('Add your first artwork above. Each piece gets its own price.');}
+    h+='<div class="head"><h2>Orders</h2></div>'+(orders.length?'<div class="list">'+orders.map(orderRowAdmin).join('')+'</div>':emptyBox('Orders from buyers will show up here.'));
+    h+='<div class="head"><h2>Custom requests</h2></div>'+(requests.length?'<div class="list">'+requests.map(reqRowAdmin).join('')+'</div>':emptyBox('Custom requests will show up here.'));
+  }else if(user){
+    h+='<div class="head"><h2>Your orders</h2></div>'+(orders.length?'<div class="list">'+orders.map(orderRowBuyer).join('')+'</div>':emptyBox('You have not placed an order yet.','<button class="btn small" type="button" data-tab="market">Shop the marketplace</button>'));
+    var mine=requests.filter(function(r){return r.buyerUid===user.uid;});
+    h+='<div class="head"><h2>Your custom requests</h2></div>'+(mine.length?'<div class="list">'+mine.map(reqRowBuyer).join('')+'</div>':emptyBox('You have not sent a request yet.','<button class="btn small" type="button" data-tab="custom">Order a custom drawing</button>'));
+  }
+  $('#v-profile').innerHTML=h;
+}
+
+/* Re-draw the profile unless the artist is typing in it, so a live update never steals the keyboard. */
+var profileDirty=false;
+function editingProfile(){
+  var a=document.activeElement;
+  return a&&$('#v-profile').contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName);
+}
+function renderProfileGuarded(){if(editingProfile()){profileDirty=true;}else{profileDirty=false;renderProfile();}}
+document.addEventListener('focusout',function(){setTimeout(function(){if(profileDirty&&!editingProfile()){profileDirty=false;renderProfile();}},60);});
+
+function updateAuthUI(){
+  var b=$('#auth-btn');
+  b.textContent=user?'Sign out':'Sign in';
+  b.setAttribute('data-act',user?'signout':'signin');
+}
+
+/* ---------- tabs, sheet, toast ---------- */
+function show(tab){
+  if(TABS.indexOf(tab)<0)tab='home';
+  ui.tab=tab;
+  $$('.view').forEach(function(v){v.hidden=v.getAttribute('data-view')!==tab;});
+  $$('.tab').forEach(function(t){if(t.getAttribute('data-tab')===tab)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});
+  try{history.replaceState(null,'','#'+tab);}catch(e){}
+  window.scrollTo(0,0);
+}
+var lastFocus=null,toastTimer=null;
+function openSheet(html){
+  lastFocus=document.activeElement;
+  $('#sheet-body').innerHTML=html;
+  $('#overlay').hidden=false;
+  document.body.style.overflow='hidden';
+  var c=$('.close');if(c)c.focus();
+  var sh=$('.sheet');if(sh)sh.scrollTop=0;
+}
+function closeSheet(){
+  $('#overlay').hidden=true;
+  document.body.style.overflow='';
+  if(lastFocus&&lastFocus.focus){try{lastFocus.focus();}catch(e){}}
+}
+function toast(msg){
+  var t=$('#toast');t.textContent=msg;t.hidden=false;
+  clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.hidden=true;},3600);
+}
+function showErr(id,msg){var e=$(id);if(!e)return;e.hidden=false;e.className='full err';e.textContent=msg;}
+function dbError(e){
+  var c=(e&&e.code)||'';
+  var m='The database cannot be reached ('+(c||'error')+'). Check that Firestore is created and the SYNORA rules are published.';
+  if(c.indexOf('permission-denied')>=0)m='The database is blocked by its rules. Publish the SYNORA rules in Firestore, under the Rules tab.';
+  var el=$('#dbmsg');el.hidden=false;el.textContent=m;
+}
+
+/* ---------- sheets ---------- */
+function signinSheet(msg){
+  openSheet('<div class="head"><span class="eyebrow">Account</span><h2>Sign in to SYNORA</h2><p class="note">'+esc(msg||'Sign in to place orders and send custom requests.')+'</p></div>'+
+    '<button class="btn" type="button" data-act="google">Continue with Google</button>'+
+    '<p class="note">Phone number sign-in with a one-time code will be added next.</p><div id="s-msg"></div>');
+}
+function artSheet(a){
+  var h='<div class="sheet-img"><img src="'+imgSrc(a)+'" alt="'+esc(a.title)+', '+esc(a.medium)+'"></div>'+
+    '<div class="head"><h2>'+esc(a.title)+'</h2><p class="note">'+esc(a.medium)+' · '+esc(a.size)+(a.year?' · '+esc(a.year):'')+'</p></div>';
+  if(forSale(a)){
+    h+='<div class="price-big">'+money(a.price)+'</div><div class="row"><button class="btn" type="button" data-act="buy" data-id="'+esc(a.id)+'">Buy this piece</button></div>';
+  }else{
+    h+='<p class="note">This drawing is part of the gallery and is not for sale. You can ask for something similar.</p><div class="row"><button class="btn ghost" type="button" data-act="goto-custom">Order a custom drawing</button></div>';
+  }
+  openSheet(h);
+}
+function checkoutSheet(a){
+  openSheet('<div class="head"><span class="eyebrow">Checkout</span><h2>'+esc(a.title)+'</h2><p class="price-big">'+money(a.price)+'</p></div>'+
+  '<form id="buy-form" data-id="'+esc(a.id)+'" novalidate><div class="form">'+
+    '<div class="field"><label for="b-name">Your name</label><input id="b-name" type="text" autocomplete="name" value="'+esc((user&&user.displayName)||'')+'" required></div>'+
+    '<div class="field"><label for="b-phone">Phone number</label><input id="b-phone" type="tel" autocomplete="tel" inputmode="tel" required></div>'+
+    '<div class="field full"><label for="b-addr">Delivery address</label><textarea id="b-addr" autocomplete="street-address" required></textarea></div>'+
+    '<div class="full"><span class="label">Payment</span></div>'+
+    '<label class="radio full"><input type="radio" name="pay" value="online" checked><span><b>Pay online</b><span class="note">UPI or card. The artist sends you a secure payment request after confirming.</span></span></label>'+
+    '<label class="radio full"><input type="radio" name="pay" value="offline"><span><b>Pay offline</b><span class="note">Cash on delivery or in person, arranged with the artist.</span></span></label>'+
+    '<div class="full" id="b-err" hidden></div>'+
+    '<div class="full"><button class="btn" type="submit" id="b-send">Send order request</button></div>'+
+  '</div></form>');
+}
+
+/* ---------- images ---------- */
+function readImage(file,max,cb){
+  var r=new FileReader();
+  r.onload=function(){
+    var im=new Image();
+    im.onload=function(){
+      var s=Math.min(1,max/Math.max(im.width,im.height));
+      var c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*s));c.height=Math.max(1,Math.round(im.height*s));
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      var q=0.82,d;
+      do{d=c.toDataURL('image/jpeg',q);q-=0.08;}while(d.length>700000&&q>0.3);
+      cb(d.length>900000?null:d);
+    };
+    im.onerror=function(){cb(null);};
+    im.src=r.result;
+  };
+  r.onerror=function(){cb(null);};
+  r.readAsDataURL(file);
+}
+
+/* ---------- auth ---------- */
+async function googleSignIn(){
+  var provider=new GoogleAuthProvider();
+  try{await signInWithPopup(auth,provider);}
+  catch(e){
+    var c=e&&e.code||'';
+    if(c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request')return;
+    if(c==='auth/popup-blocked'){try{await signInWithRedirect(auth,provider);return;}catch(e2){}}
+    var m=$('#s-msg');
+    if(m){m.className='err';m.textContent=c==='auth/unauthorized-domain'?'This website address is not approved in Firebase yet. Add it under Authentication, Settings, Authorized domains.':'Sign-in did not work ('+(c||'error')+'). Try again.';}
+  }
+}
+function watchMine(){
+  if(unsubOrders)unsubOrders();if(unsubReqs)unsubReqs();unsubOrders=unsubReqs=null;orders=[];requests=[];
+  if(!user)return;
+  var oq=isAdmin?collection(db,'orders'):query(collection(db,'orders'),where('buyerUid','==',user.uid));
+  var rq=isAdmin?collection(db,'requests'):query(collection(db,'requests'),where('buyerUid','==',user.uid));
+  unsubOrders=onSnapshot(oq,function(s){orders=mapDocs(s);sortNew(orders);renderProfileGuarded();},dbError);
+  unsubReqs=onSnapshot(rq,function(s){requests=mapDocs(s);sortNew(requests);renderProfileGuarded();renderCustomList();},dbError);
+}
+onAuthStateChanged(auth,function(u){
+  prevUser=user;user=u;
+  isAdmin=!!(u&&u.email&&u.emailVerified&&u.email.toLowerCase()===ADMIN_EMAIL);
+  updateAuthUI();watchMine();renderBrowse();renderProfileGuarded();renderCustomList();
+  if(user&&!prevUser){
+    if(pendingBuy){var a=byId(pendingBuy);pendingBuy=null;if(a&&forSale(a)){checkoutSheet(a);return;}}
+    if(!$('#overlay').hidden)closeSheet();
+    toast('Signed in.');
+  }
+});
+
+/* ---------- live data ---------- */
+onSnapshot(collection(db,'artworks'),function(snap){
+  artworks=mapDocs(snap);sortNew(artworks);
+  $('#dbmsg').hidden=true;
+  renderBrowse();renderProfileGuarded();
+},dbError);
+onSnapshot(doc(db,'profile','main'),function(snap){
+  profile=snap.exists()?snap.data():{name:'',bio:''};
+  renderProfileGuarded();
+},dbError);
+
+/* ---------- events ---------- */
+document.addEventListener('click',async function(e){
+  var t=e.target.closest('[data-tab],[data-open],[data-act],[data-filter]');
+  if(!t)return;
+  if(t.hasAttribute('data-tab')){
+    if(t.tagName==='A')e.preventDefault();
+    if(!$('#overlay').hidden)closeSheet();
+    show(t.getAttribute('data-tab'));return;
+  }
+  if(t.hasAttribute('data-open')){var a=byId(t.getAttribute('data-open'));if(a)artSheet(a);return;}
+  if(t.hasAttribute('data-filter')){ui.filter=t.getAttribute('data-filter');renderGallery();return;}
+  var act=t.getAttribute('data-act'),id=t.getAttribute('data-id');
+  try{
+    if(act==='close'){closeSheet();}
+    else if(act==='signin'){signinSheet();}
+    else if(act==='google'){await googleSignIn();}
+    else if(act==='signout'){await signOut(auth);toast('Signed out.');}
+    else if(act==='buy'){
+      var b=byId(id);if(!b)return;
+      if(!user){pendingBuy=id;signinSheet('Sign in with Google to place your order.');}
+      else{checkoutSheet(b);}
+    }
+    else if(act==='goto-custom'){closeSheet();show('custom');}
+    else if(act==='goto-profile'){closeSheet();show('profile');}
+    else if(act==='toggle-add'){ui.adding=!ui.adding;ui.tmpImg=null;renderProfile();}
+    else if(act==='remove'){
+      if(t.getAttribute('data-armed')!=='1'){
+        t.setAttribute('data-armed','1');t.textContent='Tap again to remove';
+        setTimeout(function(){if(t.isConnected){t.removeAttribute('data-armed');t.textContent='Remove';}},3500);
+      }else{await deleteDoc(doc(db,'artworks',id));toast('Artwork removed.');}
+    }
+    else if(act==='done-order'){var o=orders.filter(function(x){return x.id===id;})[0];if(o)await updateDoc(doc(db,'orders',id),{done:!o.done});}
+    else if(act==='done-req'){var r=requests.filter(function(x){return x.id===id;})[0];if(r)await updateDoc(doc(db,'requests',id),{done:!r.done});}
+  }catch(err){toast(friendly(err));}
+});
+
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('#overlay').hidden)closeSheet();});
+
+document.addEventListener('change',async function(e){
+  var t=e.target;
+  try{
+    if(t.id==='sort'){ui.sort=t.value;renderMarket();return;}
+    if(t.hasAttribute('data-price')){
+      var v=t.value===''?null:Math.max(0,Number(t.value));
+      await updateDoc(doc(db,'artworks',t.getAttribute('data-price')),{price:v});
+      return;
+    }
+    if(t.hasAttribute('data-sale')){
+      await updateDoc(doc(db,'artworks',t.getAttribute('data-sale')),{forSale:t.checked});
+      return;
+    }
+    if(t.id==='p-name'||t.id==='p-bio'){
+      var patch={};patch[t.id==='p-name'?'name':'bio']=t.value;
+      await setDoc(doc(db,'profile','main'),patch,{merge:true});
+      return;
+    }
+    if(t.id==='f-sale'){ui.form.sale=t.checked;return;}
+    if(t.id==='f-img'&&t.files&&t.files[0]){
+      readImage(t.files[0],900,function(d){
+        ui.tmpImg=d;
+        var p=$('#f-prev');
+        if(p)p.innerHTML=d?'<div class="thumb" style="margin-top:8px"><img src="'+d+'" alt="Selected artwork"></div>':'<p class="note">That photo could not be used. Try a different or smaller image.</p>';
+      });
+    }
+  }catch(err){toast(friendly(err));}
+});
+
+document.addEventListener('input',function(e){
+  var t=e.target;
+  if(t.id==='f-title')ui.form.title=t.value;
+  if(t.id==='f-medium')ui.form.medium=t.value;
+  if(t.id==='f-size')ui.form.size=t.value;
+  if(t.id==='f-price')ui.form.price=t.value;
+});
+
+document.addEventListener('submit',async function(e){
+  e.preventDefault();
+  var f=e.target,btn=f.querySelector('button[type=submit]');
+  try{
+    if(f.id==='add-form'){
+      if(!isAdmin)return;
+      var title=ui.form.title.trim();
+      if(!ui.tmpImg){showErr('#f-err','Choose a photo of the artwork.');return;}
+      if(!title){showErr('#f-err','Add a title.');return;}
+      var price=ui.form.price===''?null:Math.max(0,Number(ui.form.price));
+      if(ui.form.sale&&price==null){showErr('#f-err','Add a price to list this piece for sale.');return;}
+      btn.disabled=true;
+      await addDoc(collection(db,'artworks'),{title:title,medium:ui.form.medium.trim()||'Drawing',size:ui.form.size.trim()||'—',year:new Date().getFullYear(),price:price,forSale:ui.form.sale,img:ui.tmpImg,createdAt:serverTimestamp()});
+      ui.adding=false;ui.tmpImg=null;ui.form={title:'',medium:'',size:'',price:'',sale:true};
+      renderProfile();toast('Artwork added.');
+    }
+    else if(f.id==='buy-form'){
+      var a=byId(f.getAttribute('data-id'));if(!a||!user)return;
+      var name=$('#b-name').value.trim(),phone=$('#b-phone').value.trim(),addr=$('#b-addr').value.trim();
+      if(!name||phone.replace(/\D/g,'').length<7||!addr){showErr('#b-err','Add your name, a phone number and a delivery address.');return;}
+      var pay=($('input[name=pay]:checked',f)||{}).value||'online';
+      btn.disabled=true;
+      await addDoc(collection(db,'orders'),{artId:a.id,title:a.title,price:a.price,buyerUid:user.uid,buyerEmail:user.email||'',name:name,phone:phone,address:addr,pay:pay,done:false,createdAt:serverTimestamp()});
+      openSheet('<div class="head"><span class="eyebrow">Order request sent</span><h2>Thank you, '+esc(name)+'.</h2><p class="note">'+esc(a.title)+' at '+money(a.price)+' is requested. The artist will call '+esc(phone)+' to confirm '+(pay==='online'?'online payment':'offline payment')+' and delivery.</p></div><div class="row"><button class="btn" type="button" data-act="close">Done</button><button class="btn ghost" type="button" data-act="goto-profile">See my orders</button></div>');
+    }
+    else if(f.id==='custom-form'){
+      var n=$('#c-name').value.trim(),ph=$('#c-phone').value.trim(),desc=$('#c-desc').value.trim();
+      if(!n||ph.replace(/\D/g,'').length<7||!desc){showErr('#c-err','Add your name, a phone number and a description of the drawing.');return;}
+      if(!user){signinSheet('Sign in with Google to send your request. Your form stays filled in.');return;}
+      var rec={buyerUid:user.uid,buyerEmail:user.email||'',name:n,phone:ph,desc:desc,kind:$('#c-kind').value,size:$('#c-size').value,budget:$('#c-budget').value?Number($('#c-budget').value):null,needBy:$('#c-date').value||'',done:false,createdAt:serverTimestamp()};
+      btn.disabled=true;
+      var fl=$('#c-ref').files&&$('#c-ref').files[0];
+      var send=async function(){
+        try{await addDoc(collection(db,'requests'),rec);f.reset();$('#c-err').hidden=true;toast('Request sent. The artist will contact you.');window.scrollTo(0,0);}
+        catch(err){toast(friendly(err));}
+        btn.disabled=false;
+      };
+      if(fl){readImage(fl,600,function(d){if(d)rec.ref=d;send();});}else{await send();}
+      return;
+    }
+  }catch(err){toast(friendly(err));}
+  if(btn)btn.disabled=false;
+});
+
+renderBrowse();renderCustomForm();renderProfile();updateAuthUI();
+var h0=(location.hash||'').replace('#','');
+show(TABS.indexOf(h0)>=0?h0:'home');
+</script>
+</body>
+</html>
